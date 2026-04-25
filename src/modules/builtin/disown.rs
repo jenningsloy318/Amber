@@ -1,9 +1,9 @@
-use crate::{fragments, raw_fragment};
 use crate::modules::expression::expr::Expr;
 use crate::modules::prelude::*;
 use crate::modules::types::{Type, Typed};
 use crate::translate::fragments::var_stmt::VarStmtFragment;
 use crate::utils::ParserMetadata;
+use crate::{fragments, raw_fragment};
 use amber_meta::AutoKeyword;
 use heraclitus_compiler::prelude::*;
 use heraclitus_compiler::syntax_name;
@@ -79,16 +79,19 @@ impl TranslateModule for Disown {
 
         let pid_var = format!("__AMBER_PID_{}", meta.gen_value_id());
 
-        BlockFragment::new(vec![
-            raw_fragment!("for {pid_var} in {iter_value}; do"),
-            BlockFragment::new(
-                vec![
-                    raw_fragment!("disown ${pid_var} 2>/dev/null || true")
-                ],
-                true,
-            ).to_frag(),
-            raw_fragment!("done"),
-        ], false).to_frag()
+        BlockFragment::new(
+            vec![
+                raw_fragment!("for {pid_var} in {iter_value}; do"),
+                BlockFragment::new(
+                    vec![raw_fragment!("disown ${pid_var} 2>/dev/null || true")],
+                    true,
+                )
+                .to_frag(),
+                raw_fragment!("done"),
+            ],
+            false,
+        )
+        .to_frag()
     }
 }
 

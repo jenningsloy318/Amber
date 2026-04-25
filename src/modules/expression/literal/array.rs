@@ -42,11 +42,7 @@ impl SyntaxModule<ParserMetadata> for Array {
                     );
                 }
                 if matches!(kind, Type::Union(_)) {
-                    return error!(
-                        meta,
-                        tok,
-                        "Arrays don't support mixed type values"
-                    )
+                    return error!(meta, tok, "Arrays don't support mixed type values");
                 }
                 self.kind = Type::Array(Box::new(kind));
                 token(meta, "]")?;

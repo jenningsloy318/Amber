@@ -14,9 +14,9 @@ use heraclitus_compiler::prelude::*;
 #[keyword = "lines"]
 #[kind = "builtin_expr"]
 pub struct LinesInvocation {
-    path: Box<Option<Expr>>,
-    modifier: CommandModifier,
-    failure_handler: FailureHandler,
+    pub path: Box<Option<Expr>>,
+    pub modifier: CommandModifier,
+    pub failure_handler: FailureHandler,
 }
 
 impl Typed for LinesInvocation {
@@ -101,7 +101,7 @@ impl TranslateModule for LinesInvocation {
 
         let has_sudo = self.modifier.is_sudo || meta.sudoed;
         let sudo_prefix = meta.with_sudoed(has_sudo, |meta| meta.gen_sudo_prefix().to_frag());
-        
+
         // Using only suppress to hide stderr, as stdout is passed to arr
         let suppress = meta.with_suppress(
             self.modifier.is_suppress || meta.suppress || self.modifier.is_silent || meta.silenced,
@@ -141,15 +141,6 @@ impl TranslateModule for LinesInvocation {
             handler,
         ]);
         var_expr.to_frag()
-    }
-}
-
-impl LinesInvocation {
-    pub fn translate_path(&self, meta: &mut TranslateMetadata) -> FragmentKind {
-        (*self.path)
-            .as_ref()
-            .map(|p| p.translate(meta))
-            .expect("Cannot read lines without provided path in iterator loop")
     }
 }
 
