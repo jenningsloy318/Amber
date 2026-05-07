@@ -507,3 +507,39 @@ fn test_cli_bash_32_nested_ref_runtime() {
         .success()
         .stdout(predicate::str::contains("John\n1\n2\n3"));
 }
+
+#[test]
+fn test_cli_eval() {
+    let mut cmd = Command::new(amber_bin());
+    cmd.args([
+        "eval",
+        r#"echo("Hello world")"#,
+    ])
+    .assert()
+    .success()
+    .stdout(predicate::str::starts_with("Hello world"));
+}
+
+#[test]
+fn test_cli_param_injection() {
+    let temp_file = NamedTempFile::new().expect("Failed to create temp file");
+    let amber_code = r#"
+        main (args) {
+            echo(args[1])
+        }
+        "#;
+
+    std::fs::write(temp_file.path(), amber_code).expect("Failed to write test file");
+
+    let mut cmd = Command::new(amber_bin());
+    cmd.args([
+        "run",
+        temp_file.path().to_str().unwrap(),
+        "$HOME"
+    ])
+    .assert()
+    .success()
+    .stdout(predicate::str::starts_with("$HOME"));
+
+    let _ = temp_file.close();
+}
